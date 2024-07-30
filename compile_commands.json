@@ -1,0 +1,10 @@
+[
+{ "file"      : "c_src/fxml.c"
+, "directory" : "/opt/fast_xml"
+, "command"   : "cc -c -g -O2 -Wall -g -Wall -fPIC -MMD -I\"/usr/local/lib/erlang/lib/erl_interface-3.13.2.2/include\" -I\"/usr/local/lib/erlang/erts-10.7.2.18/include\" c_src/fxml.c -o c_src/fxml.o"
+}
+{ "file"      : "c_src/fxml_stream.c"
+, "directory" : "/opt/fast_xml"
+, "command"   : "cc -c -g -O2 -Wall -g -Wall -fPIC -MMD -I\"/usr/local/lib/erlang/lib/erl_interface-3.13.2.2/include\" -I\"/usr/local/lib/erlang/erts-10.7.2.18/include\" c_src/fxml_stream.c -o c_src/fxml_stream.o"
+}
+]
