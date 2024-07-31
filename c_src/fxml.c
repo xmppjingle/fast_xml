@@ -216,62 +216,23 @@ static int make_attrs(ErlNifEnv* env, struct buf *rbuf, ERL_NIF_TERM attrs)
   return ret;
 }
 
-static int make_element_cdata(ErlNifEnv* env, struct buf *rbuf, ERL_NIF_TERM el, int is_header)
-{
-  ErlNifBinary cdata, name;
-  const ERL_NIF_TERM *tuple;
-  int arity, ret = 0;
-
-  if (enif_get_tuple(env, el, &arity, &tuple)) {
-    if (arity == 2 && !is_header) {
-      if (!ENIF_COMPARE(tuple[0], atom_xmlcdata)) {
-	if (enif_inspect_iolist_as_binary(env, tuple[1], &cdata)) {
-	  buf_add_str(env, rbuf, "<![CDATA[", 9);
-	  buf_add_str(env, rbuf, (char *)cdata.data, cdata.size);
-	  buf_add_str(env, rbuf, "]]>", 3);
-	  ret = 1;
-	};
-      };
-    };
-    if (arity == 4) {
-      if (!ENIF_COMPARE(tuple[0], atom_xmlelement)) {
-	if (enif_inspect_iolist_as_binary(env, tuple[1], &name)) {
-	  if (is_header)
-	    buf_add_str(env, rbuf, "<?xml version='1.0'?>", 21);
-	  buf_add_char(env, rbuf, '<');
-	  buf_add_str(env, rbuf, (char *)name.data, name.size);
-	  ret = make_attrs(env, rbuf, tuple[2]);
-	  if (ret) {
-	    if (is_header) {
-	      buf_add_char(env, rbuf, '>');
-	    } else if (enif_is_empty_list(env, tuple[3])) {
-	      buf_add_str(env, rbuf, "/>", 2);
-	    } else {
-	      buf_add_char(env, rbuf, '>');
-	      ret = make_elements(env, rbuf, tuple[3]);
-	      if (ret) {
-		buf_add_str(env, rbuf, "</", 2);
-		buf_add_str(env, rbuf, (char*)name.data, name.size);
-		buf_add_char(env, rbuf, '>');
-	      };
-	    };
-	  };
-	};
-      };
-    };
-  };
-
 static int make_element(ErlNifEnv* env, struct buf *rbuf, ERL_NIF_TERM el, int is_header)
 {
   ErlNifBinary cdata, name;
   const ERL_NIF_TERM *tuple;
-  int arity, ret = 0;
+  int arity, ret = 0, is_cdata = 1;
 
   if (enif_get_tuple(env, el, &arity, &tuple)) {
     if (arity == 2 && !is_header) {
       if (!ENIF_COMPARE(tuple[0], atom_xmlcdata)) {
 	if (enif_inspect_iolist_as_binary(env, tuple[1], &cdata)) {
-	  xml_encode(env, rbuf, cdata.data, cdata.size);
+	        if (is_cdata) {
+            buf_add_str(env, rbuf, "<![CDATA[", 9);
+            buf_add_str(env, rbuf, (char *)cdata.data, cdata.size);
+            buf_add_str(env, rbuf, "]]>", 3);
+          } else {
+            xml_encode(env, rbuf, cdata.data, cdata.size);
+          }
 	  ret = 1;
 	};
       };
